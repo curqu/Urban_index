@@ -94,18 +94,30 @@ ucenter_pixels = Reclassify("pixel_classes", "Value", ucenter_rules)
 ucenter_pgroups = RegionGroup("ucenter_pixels", "FOUR", "WITHIN")
 
 ## DETERMINE REGIONS WITH > 50,000 POPULATION
-## Sum population within regions
-arcpy.SummarizeRasterWithin_ra('ucenter_pgroups', 'Value', 'region_pop',\
-                               'ucenter_sum', 'SUM')
+## Convert regions to polygons in order to sum
+arcpy.RasterToPolygon_conversion("ucenter_pgroups" "urbanindex.gdb/ucenter_poly"
+                                 "NO_SIMPLIFY" "VALUE")
+## Fill gaps (all enclosed pixel areas are incorporated into polygons)
+arcpy.Union_analysis(["urbanindex.gdb/ucenter_poly"], "urbanindex.gdb/ucenter_polyfill", "ALL",
+                     0.01, "NO_GAPS")
+## Sum population over polygons
+fieldmap.mergeRule = "sum"
+SpatialJoin_analysis("urbanindex.gdb/ucenter_polyfill", "region_pop.tif",
+                     "urbanindex.gdb/ucenter_sums", "", "", arcpy.FieldMappings())
+                     
 
 #################################################################
 
 ## REMOVE TEMPORARY FILES
 
-#arcpy.Delete_management("region_access")
-#arcpy.Delete_management("region_pop")
-#arcpy.Delete_management("region_built")
+arcpy.Delete_management("region_access")
+arcpy.Delete_management("region_pop")
+arcpy.Delete_management("region_built")
 arcpy.Delete_management("pop_classes")
 arcpy.Delete_management("bu_classes")
 arcpy.Delete_management("pixel_classes")
 arcpy.Delete_management("ucenter_pixels")
+arcpy.Delete_management("ucenter_pgroups")
+arcpy.Delete_management("urbanindex.gdb/ucenter_poly")
+arcpy.Delete_management("urbanindex.gdb/ucenter_polyfill")
+                       
