@@ -62,7 +62,8 @@ arcpy.ProjectRaster_management(in_built, "region_built.tif",\
 ##  - 1 is between 1 - 75 people / pixel
 ##  - 3 is between 75 - 374 people / pixel
 ##  - 5 is greater than 375 people / pixel
-pop_rules = RemapRange([[0, 0, 0], [0, 74, 1], [74, 374, 3], [374, 3566, 5]])
+pop_rules = RemapRange([[0, 0, 0], [0, 74, 1], [74, 374, 3],
+                        [374, 3566, 5]])
 pop_classes = Reclassify("region_pop.tif", "Value", pop_rules)
 
 ## BUILT-UP CLASSIFICATION
@@ -95,16 +96,30 @@ ucenter_pgroups = RegionGroup("ucenter_pixels", "FOUR", "WITHIN")
 
 ## DETERMINE REGIONS WITH > 50,000 POPULATION
 ## Convert regions to polygons in order to sum
-arcpy.RasterToPolygon_conversion("ucenter_pgroups" "urbanindex.gdb/ucenter_poly"
+arcpy.RasterToPolygon_conversion("ucenter_pgroups"
+                                 "ucenter_poly"
                                  "NO_SIMPLIFY" "VALUE")
 ## Fill gaps (all enclosed pixel areas are incorporated into polygons)
-arcpy.Union_analysis(["urbanindex.gdb/ucenter_poly"], "urbanindex.gdb/ucenter_polyfill", "ALL",
+arcpy.Union_analysis(["ucenter_poly"],
+                     "ucenter_polyfill", "ALL",
                      0.01, "NO_GAPS")
+arcpy.Dissolve_management("ucenter_polyfill", "ucenter_polyfd", "", "", "SINGLE_PART")
+
+## Convert population layer to integer type, build attribute table
+arcpy.Int_3d("region_pop.tif", "region_pop_int.tif")
+
 ## Sum population over polygons
-fieldmap.mergeRule = "sum"
-SpatialJoin_analysis("urbanindex.gdb/ucenter_polyfill", "region_pop.tif",
-                     "urbanindex.gdb/ucenter_sums", "", "", arcpy.FieldMappings())
-                     
+pop_sum = ZonalStatistics("ucenter_polyfd", "FID",
+                          "region_pop_int.tif", "SUM", "NODATA")
+
+## Reclassify summed population raster:
+## - 0 = less than 50,000
+## - 10 = 50,000 or more
+rules = RemapRange([[0,49000,0],[50000, 333683, 10]])
+ucenter_class = Reclassify ("pop_sum", "Value", rules)
+
+## Set urban center pixels to null in pixel_class layer
+
 
 #################################################################
 
@@ -118,6 +133,9 @@ arcpy.Delete_management("bu_classes")
 arcpy.Delete_management("pixel_classes")
 arcpy.Delete_management("ucenter_pixels")
 arcpy.Delete_management("ucenter_pgroups")
-arcpy.Delete_management("urbanindex.gdb/ucenter_poly")
-arcpy.Delete_management("urbanindex.gdb/ucenter_polyfill")
-                       
+arcpy.Delete_management("ucenter_poly")
+arcpy.Delete_management("ucenter_polyfill")
+arcpy.Delete_management("region_pop_int")                       
+arcpy.Delete_management("ucenter_polyfd")
+arcpy.Delete_management("pop_sum")
+arcpy.Delete_management("ucenter_class") 
