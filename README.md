@@ -51,6 +51,7 @@ The default value can be used if relevant data is not available, but may reduce 
 To obtain an output analogous to the original GHSL output at 250m, the accessibility threshold value can be set to 0.
 The following line in the program should be editted to reflect the desired accessibility threshold value:
  
+ ``suburban_thresh = 40``
 - - - -  
 # Background Information
 The program uses the same criteria as the Global Human Settlement Layer developed by the European Commission's Joint Research Council. The GHSL classifies pixels into 4 categories: Urban center, Urban cluster, rural and uninhabited. This program adds a suburban class, created by sub-classifying "rural" cells based on their accessibility to urban centers.
