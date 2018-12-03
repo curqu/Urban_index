@@ -1,5 +1,5 @@
 # Urban & Suburban Development Index
-A python script for ArcMap 10.6 classifying urban, suburban and rural areas, based on the Global Human Settlement Layer.
+A python script for ArcMap 10.6 classifying urban, suburban and rural areas, based on the Global Human Settlement Layer (GHSL).
 
 - - - -
 # Dependencies
@@ -18,7 +18,7 @@ A python script for ArcMap 10.6 classifying urban, suburban and rural areas, bas
   While using the program does not require any knowledge of Python, the user will be required to adjust variable inputs to match their working environment and application, as described below. These edits should be made in an IDE or text editor of the user's choice, such as IDLE or Notepad++. 
   Before execution, environment variables and inputs should be set:
 
-The GHSL, MAP datasets should be prepared by clipping to match the user's study area, and reprojecting if necessary. 
+The GHSL, MAP datasets should be prepared by clipping to match the user's study area, and reprojected if necessary. 
 - - - -  
 # Background Information
 The program uses the same criteria as the Global Human Settlement Layer developed by the European Commission's Joint Research Council. The GHSL classifies pixels into 4 categories: Urban center, Urban cluster, rural and uninhabited. This program adds a suburban class, created by sub-classifying "rural" cells based on their accessibility to urban centers.
