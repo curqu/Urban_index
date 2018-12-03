@@ -78,4 +78,7 @@ Grid cells with 0 population are uninhabited.
 The program is designed for applications at a regional scale - analyzing a single metropolitan area, county, state/province or small country. Many of the applications suggested on the GHSL website, such as time-series analysis, quantifying urbanization, and measuring growth of informal settlements are made possible at larger spatial scales. The module helps remove bias in qualitiative classification of human settlements as well as make it possible when municipal planning data is not available/accurate. The addition of a suburban class makes it possible to compare urban, suburban and rural populations. One could use the output to analyze health outcomes, education, demographic changes, voting preference, social and economic wellbeing and other potential settlement-based disparities.
 
 The program can be modified to work with alternative population and building footprint data. It can also be extended to run as an ArcToolbox script so variables could be defined in a graphical environment. 
-To modify the program so that it does not reproject the input GHSL and MAP datasets, the reprojection module should be commented out or removed, and function arguments need to changed so that 
+
+To modify the program so that it does not reproject the input GHSL and MAP datasets, the reprojection module should be commented out or removed, and function arguments need to changed so that ``"region_pop.tif"`` becomes ``in_pop``, ``"region_built.tif"`` becomes ``in_built`` and ``region_access.tif`` becomes ``in_access``. 
+
+Output analogous to the original GHSL output, at 250m resolution can be obtained by setting the accessibility threshold value to 0.
