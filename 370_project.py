@@ -179,7 +179,7 @@ arcpy.Resample_management ("region_access.tif", "access_250", 250, \
 ## Changes value of pixels within accessibility threshold
 ## - 1 = RURAL
 ## - 2 = SUBURBAN
-sub_class = (Raster("access_250") < ** ) & ( Raster("rs_pixels") == 1)
+sub_class = (Raster("access_250") < suburban_thresh ) & ( Raster("rs_pixels") == 1)
 subrur_class = (Raster("sub_class") + 1)
 #################################################################
 
