@@ -39,7 +39,7 @@ The following projection layer is only used to reproject the above 3 datasets to
 ``## Input Regional Extent Projection  Layer
 in_region = "my_projected_study_area"``
 
-### Accessibility Threshold Parameter
+### Accessibility Threshold Parameter *** clarify why 2 SD is chosen, give better justification for default 
 This variable defines the threshold used to classify suburban cells (vs. rural). The default value is 40, which reflects the author's idea of a "reasonable" time distance for daily travel to the nearest urban center. This variable should be defined based on local context and the application. 
 
 For applications that wish to learn about exisitng patterns / relationships between urban / suburban / rural space and populations: the threshold should reflect the time distance that people are willing to commute - such as + 2 standard deviations from the average daily commute time. This criteria reflects the connectedness of pixels in question to an urban center, using employment as a proxy for all social connections. When this type of data is not available, analysts use a constant * the mean commute time to estimate 2 standard deviations.
@@ -55,7 +55,8 @@ The following line in the program should be editted to reflect the desired acces
 - - - -  
 # Background Information
 The program uses the same criteria as the Global Human Settlement Layer developed by the European Commission's Joint Research Council. The GHSL classifies pixels into 4 categories: Urban center, Urban cluster, rural and uninhabited. This program adds a suburban class, created by sub-classifying "rural" cells based on their accessibility to urban centers.
-## About the Global Human Settlement Layer
+
+## About the Global Human Settlement Layer *** explain urban center and urban cluster, make meaningful outside of context
 The GHSL uses a global population dataset with satellite derived building footprint data to classify human settlement at a global scale. The original GHSL with 1km resolution is available for download at: https://ghsl.jrc.ec.europa.eu/data.php. The original GHSL categories are based on statistical classes of human settlement used by the EU. Outside of that framework, they may not be meaningful. By increasing the resolution of the output and adding an accessibility parameter, this program will extend the useability of the GHSL to a wider variety of applicaions.
 The inputs for the original GHSL are a population raster and a layer they refer to as "built up": which represents the percentage of a pixel that contains human-made structures. To define the suburban class, we use accessibility data rom the Malaria Atlas Project.
 
