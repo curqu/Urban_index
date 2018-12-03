@@ -18,7 +18,9 @@ A python script for ArcMap 10.6 classifying urban, suburban and rural areas, bas
   While using the program does not require any knowledge of Python, the user will be required to adjust variable inputs to match their working environment and application, as described below. These edits should be made in an IDE or text editor of the user's choice, such as IDLE or Notepad++. 
   Before execution, environment variables and inputs should be set:
   ### Environment workspace
-  The environment needs to be set to the working directory, which should include all the files specified below as inputs, as well as a default geodatabase file. The workspace should *not* be the geodatabase file itself, and the program will likely return errors in that case.
+  The environment needs to be set to the working directory, which should include all the files specified below as inputs, as well as a default geodatabase file. The workspace should *not* be the geodatabase file itself. The following line should be edited so that the directory in quotations matches the working directory. Note that "/" replaces "\" in the path.
+  
+  ``arcpy.env.workspace = "c:/pathto/mydirectory/myworkspacefolder"``
   
   ### Input Layers
   All input layers from the datasets above should be clipped to the study area extent before running the module. If datasets do not need reprojection, the projection layer can be set to an input, or can be deleted if reprojection block in the program is removed - this option will be discussed further in modification section below. There are four input layers required, the population & built up layers (from GHSL dataset), the accessibility layer (from MAP dataset) and a layer defining the desired projection for the study area. The user should change the following layer names (in quotations) to match their clipped inputs, for example ``"accessibility.tif"`` would become ``my_clipped_accessibility_dataset.tif"``:
@@ -36,6 +38,18 @@ The following projection layer is only used to reproject the above 3 datasets to
 
 ``## Input Regional Extent Projection  Layer
 in_region = "my_projected_study_area"``
+
+### Accessibility Threshold Parameter
+This variable defines the threshold used to classify suburban cells (vs. rural). The default value is 40, which reflects the author's idea of a "reasonable" time distance for daily travel to the nearest urban center. This variable should be defined based on local context and the application. 
+
+For applications that wish to learn about exisitng patterns / relationships between urban / suburban / rural space and populations: the threshold should reflect the time distance that people are willing to commute - such as + 2 standard deviations from the average daily commute time. This criteria reflects the connectedness of pixels in question to an urban center, using employment as a proxy for all social connections. When this type of data is not available, analysts use a constant * the mean commute time to estimate 2 standard deviations.
+
+For applications assessing future development goals/locations: a threshold based on the mean commute time, desired commute time or relevant literature is more appropriate. 
+
+The default value can be used if relevant data is not available, but may reduce the quality of the outputs when it is inappropriate for local context.
+
+To obtain an output analogous to the original GHSL output at 250m, the accessibility threshold value can be set to 0.
+The following line in the program should be editted to reflect the desired accessibility threshold value:
  
 - - - -  
 # Background Information
