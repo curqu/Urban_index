@@ -7,7 +7,7 @@ A python script for ArcMap 10.6 classifying urban, suburban and rural areas, bas
  - Designed for use with GHSL population and built-up layers at 250m resolution, data available at:
    http://cidportal.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_POP_GPW4_GLOBE_R2015A/
    http://cidportal.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_BUILT_LDSMT_GLOBE_R2015B/ 
-   and Accessibility layer from the MAP, available here:
+   and Accessibility layer from the Malaria Atlas Project (MAP), available here:
    https://map.ox.ac.uk/research-project/accessibility_to_cities/
 
 - - - - 
@@ -55,12 +55,12 @@ The following line in the program should be editted to reflect the desired acces
 - - - -  
 # Background Information
 The program uses the same criteria as the Global Human Settlement Layer developed by the European Commission's Joint Research Council. The GHSL classifies pixels into 4 categories: Urban center, Urban cluster, rural and uninhabited. This program adds a suburban class, created by sub-classifying "rural" cells based on their accessibility to urban centers.
-## About the GHSL
+## About the Global Human Settlement Layer
 The GHSL uses a global population dataset with satellite derived building footprint data to classify human settlement at a global scale. The original GHSL with 1km resolution is available for download at: https://ghsl.jrc.ec.europa.eu/data.php. The original GHSL categories are based on statistical classes of human settlement used by the EU. Outside of that framework, they may not be meaningful. By increasing the resolution of the output and adding an accessibility parameter, this program will extend the useability of the GHSL to a wider variety of applicaions.
 The inputs for the original GHSL are a population raster and a layer they refer to as "built up": which represents the percentage of a pixel that contains human-made structures. To define the suburban class, we use accessibility data rom the Malaria Atlas Project.
 
-## About the MAP Accessibility Dataset
-The MAP Accessibility layer represents the time in minutes to reach the nearest urban center from a given cell.
+## About the Malaria Atlas Project Accessibility Dataset
+The MAP Accessibility layer represents the time in minutes to reach the nearest urban center from a given cell. It is based on the GHSL outputs, so the urban centers used in the accessibility input layer should closely reflect those classified by the program.
 
 ## Classification Criteria
 ### Urban Centers
@@ -76,4 +76,6 @@ Grid cells with 0 population are uninhabited.
 - - - - 
 # Potential Applications & Modifications
 The program is designed for applications at a regional scale - analyzing a single metropolitan area, county, state/province or small country. Many of the applications suggested on the GHSL website, such as time-series analysis, quantifying urbanization, and measuring growth of informal settlements are made possible at larger spatial scales. The module helps remove bias in qualitiative classification of human settlements as well as make it possible when municipal planning data is not available/accurate. The addition of a suburban class makes it possible to compare urban, suburban and rural populations. One could use the output to analyze health outcomes, education, demographic changes, voting preference, social and economic wellbeing and other potential settlement-based disparities.
+
 The program can be modified to work with alternative population and building footprint data. It can also be extended to run as an ArcToolbox script so variables could be defined in a graphical environment. 
+To modify the program so that it does not reproject the input GHSL and MAP datasets, the reprojection module should be commented out or removed, and function arguments need to changed so that 
