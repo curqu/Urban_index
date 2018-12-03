@@ -17,8 +17,25 @@ A python script for ArcMap 10.6 classifying urban, suburban and rural areas, bas
   ## Executing the Program
   While using the program does not require any knowledge of Python, the user will be required to adjust variable inputs to match their working environment and application, as described below. These edits should be made in an IDE or text editor of the user's choice, such as IDLE or Notepad++. 
   Before execution, environment variables and inputs should be set:
+  ### Environment workspace
+  The environment needs to be set to the working directory, which should include all the files specified below as inputs, as well as a default geodatabase file. The workspace should *not* be the geodatabase file itself, and the program will likely return errors in that case.
+  
+  ### Input Layers
+  All input layers from the datasets above should be clipped to the study area extent before running the module. If datasets do not need reprojection, the projection layer can be set to an input, or can be deleted if reprojection block in the program is removed - this option will be discussed further in modification section below. There are four input layers required, the population & built up layers (from GHSL dataset), the accessibility layer (from MAP dataset) and a layer defining the desired projection for the study area. The user should change the following layer names (in quotations) to match their clipped inputs, for example ``"accessibility.tif"`` would become ``my_clipped_accessibility_dataset.tif"``:
 
-The GHSL, MAP datasets should be prepared by clipping to match the user's study area, and reprojected if necessary. 
+ `` ## Input Accessibility Layer
+in_access = "accessibility.tif"``
+
+``## Input Population Layer
+in_pop = "GHS_POP_2015"``
+
+``## Input Built-Up Layer
+in_built = "GHS_BUILT2014"``
+
+The following projection layer is only used to reproject the above 3 datasets to an appropriate projection for the study area. It can be a raster, polygon, line or point layer - it must only be a projected layer and match the study area extent. It will not be used for any classification steps.
+``## Input Regional Extent Projection  Layer
+in_region = "my_projected_study_area"``
+ 
 - - - -  
 # Background Information
 The program uses the same criteria as the Global Human Settlement Layer developed by the European Commission's Joint Research Council. The GHSL classifies pixels into 4 categories: Urban center, Urban cluster, rural and uninhabited. This program adds a suburban class, created by sub-classifying "rural" cells based on their accessibility to urban centers.
