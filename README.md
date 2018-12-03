@@ -32,7 +32,8 @@ in_pop = "GHS_POP_2015"``
 ``## Input Built-Up Layer
 in_built = "GHS_BUILT2014"``
 
-The following projection layer is only used to reproject the above 3 datasets to an appropriate projection for the study area. It can be a raster, polygon, line or point layer - it must only be a projected layer and match the study area extent. It will not be used for any classification steps.
+The following projection layer is only used to reproject the above 3 datasets to an appropriate projection for the study area. It can be a raster, polygon, line or point layer - it must only be a projected layer and match the study area extent. It will not be used for any classification steps. Edit the following line of the program so that the file in quotes is the projection layer:
+
 ``## Input Regional Extent Projection  Layer
 in_region = "my_projected_study_area"``
  
