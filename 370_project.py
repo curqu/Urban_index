@@ -68,7 +68,7 @@ arcpy.ProjectRaster_management(in_built, "region_built.tif",\
 ##  - 1 is between 1 - 75 people / pixel
 ##  - 2 is between 75 - 374 people / pixel
 ##  - 3 is greater than 375 people / pixel
-pop_rules = RemapRange([[0, 0, 0], [0, 74, 1], [74, 374, 2],
+pop_rules = RemapRange([[0, 0.8, 0], [0, 74, 1], [74, 374, 2],
                         [374, 3566, 3]])
 pop_classes = Reclassify("region_pop.tif", "Value", pop_rules)
 
@@ -79,11 +79,10 @@ pop_classes = Reclassify("region_pop.tif", "Value", pop_rules)
 bu_rules = RemapRange([[0, 0.49, 0], [0.49, 1, 10]])
 bu_classes = Reclassify("region_built.tif", "Value", bu_rules)
 
-## COMBINE OUTPUTS
+## COMBINE OUTPUTS FOR URBAN CENTER CLASSIFICATION
 ## adds values from each "classes" layer:
 ##  - 0 is 0 pop and 0-49% built up
-##  - 1 is RURAL or SUBURBAN
-##  - >= 2 is potential URBAN CLUSTER
+##  - 1-2 is RURAL or SUBURBAN or URBAN CLUSTER
 ##  - >= 3 is potential URBAN CENTRE
 pixel_classes = Raster("pop_classes") + Raster("bu_classes")
 
@@ -113,11 +112,11 @@ arcpy.Dissolve_management("ucenter_polyfill", "ucenter_polyfd", "", "", \
 			  "SINGLE_PART")
 
 ## Convert population layer to integer type, build attribute table
-arcpy.Int_3d("region_pop.tif", "region_pop_int.tif")
+arcpy.Int_3d("region_pop.tif", "region_pop_int")
 
 ## Sum population over polygons
-pop_sum_uce = ZonalStatistics("ucenter_polyfd", "FID",\
-                          "region_pop_int.tif", "SUM", "NODATA")
+pop_sum_uce = ZonalStatistics("ucenter_polyfd", "OBJECTID",\
+                          "region_pop_int", "SUM", "NODATA")
 
 ## Reclassify summed population raster:
 ## - 0 = less than 50,000
@@ -126,17 +125,17 @@ rules = RemapRange([[0,49999,0],[50000, 10000000, 4]])
 ucenter_class = Reclassify ("pop_sum_uce", "Value", rules)
 
 
-## Set urban center pixels to null in pixel_class layer
+## Set urban center pixels to null in pop_class layer
 con_uce = Con(IsNull("ucenter_class"),0, "ucenter_class")
-forucl_mod = SetNull ("con_uce", "pixel_classes", "VALUE = 4")
+forucl_mod = SetNull ("con_uce", "pop_classes", "VALUE = 4")
 
 #################################################################
 
 ## DEFINE URBAN CLUSTERS (tested) ***
 
 ## ISOLATE URBAN CLUSTER PIXELS 
-## Categorizes all urban cluster pixels, other classes are NODATA ***EDIT FOR "OR" CASE
-ucluster_rules = RemapRange([[0, 2, 'NODATA'], [2, 6, 1]])
+## Categorizes all urban cluster pixels, other classes are NODATA
+ucluster_rules = RemapRange([[0, 1, 'NODATA'], [2, 3, 1]])
 ucluster_pixels = Reclassify("forucl_mod", "Value", ucluster_rules)
 
 ## CREATE URBAN CLUSTER REGIONS
@@ -150,7 +149,7 @@ arcpy.RasterToPolygon_conversion("ucluster_pgroups",\
                                  "NO_SIMPLIFY", "VALUE")
 ## Sum population over polygons
 pop_sum_ucl = ZonalStatistics("ucluster_poly", "OBJECTID",\
-                          "region_pop_int.tif", "SUM", "NODATA")
+                          "region_pop_int", "SUM", "NODATA")
 
 ## Reclassify summed population raster:
 ## - 0 = less than 5,000
@@ -167,8 +166,8 @@ forrs_mod = SetNull ("con_ucl", "forucl_mod", "VALUE = 3")
 ## DEFINE RURAL / SUBURBAN
 
 ## ISOLATE RURAL/SUBURBAN PIXELS 
-## Categorizes all rural and suburban pixels, other classes are NODATA ***EDIT FOR "OR" CASE
-rs_rules = RemapRange([[0, 0, 'NODATA'], [1, 6, 1]])
+## Categorizes all rural and suburban pixels, other classes are NODATA
+rs_rules = RemapRange([[0, 0, 'NODATA'], [1, 3, 1]])
 rs_pixels = Reclassify("forrs_mod", "Value", rs_rules)
 
 ## RESAMPLE ACCESSIBILITY LAYER
@@ -181,13 +180,23 @@ arcpy.Resample_management ("region_access.tif", "access_250", 250, \
 ## - 1 = RURAL
 ## - 2 = SUBURBAN
 sub_class = (Raster("access_250") < suburban_thresh ) & ( Raster("rs_pixels") == 1)
-subrur_class = (Raster("sub_class") + 1)
+addrur_class = (Raster("sub_class") + 1)
+
+## CLASSIFY UNINHABITED
+## Sets all Remaining Pixels to 0
+unin_rules = RemapRange([[0,0,0], [1,3, 'NODATA']])
+unin_class = Reclassify("forrs_mod", "Value", unin_rules)
+			 
 #################################################################
 
-## MOSAIC RESULTS
+## MOSAIC RESULTS ##UNTESTED
 # urban center layer is con_uce (nodata is 0) or ucenter_class (has nodata)
 # urban cluster layer is con_ucl (nodata is 0) or ucluster_class (has nodata)
 # suburban/rural layer is subrur_class (nodata is 0) OR...
+arcpy.MosaicToNewRaster_management("subrur_class;ucluster_class;ucenter_class;u\
+				   nin_class","c:/temp/370_test1",\
+				   "human_settlement_index.tif", "","","","1",\
+				   "MAXIMUM","MATCH")		 	
 
 ##################################################################
 
@@ -220,3 +229,4 @@ arcpy.Delete_management("rs_pixels")
 arcpy.Delete_management("access_250")
 arcpy.Delete_management("sub_class") 
 arcpy.Delete_management("subrur_class") 
+arcpy.Delete_management("uninclass")
