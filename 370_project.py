@@ -33,6 +33,12 @@ in_region = "EBC_REG_DT_polygon"
 
 #################################################################
 
+## ACCESSIBILITY THRESHOLD (see README for appropriate Values)
+
+suburban_thresh = 40
+
+#################################################################
+
 ## REPROJECT DATA LAYERS (tested)
 
 ## Reproject Accessibility Layer
@@ -83,9 +89,9 @@ pixel_classes = Raster("pop_classes") + Raster("bu_classes")
 
 #################################################################
 
-## DEFINE URBAN CENTERS
+## DEFINE URBAN CENTERS (tested)***
 
-## ISOLATE URBAN CENTERS PIXELS
+## ISOLATE URBAN CENTERS PIXELS *** EDIT TO "OR" CASE
 ## Categorizes all urban center pixels, other classes are NODATA
 ucenter_rules = RemapRange([[0, 2, 'NODATA'], [2, 13, 1]])
 ucenter_pixels = Reclassify("pixel_classes", "Value", ucenter_rules) #check if rules correct!
@@ -96,32 +102,94 @@ ucenter_pgroups = RegionGroup("ucenter_pixels", "FOUR", "WITHIN")
 
 ## DETERMINE REGIONS WITH > 50,000 POPULATION
 ## Convert regions to polygons in order to sum
-arcpy.RasterToPolygon_conversion("ucenter_pgroups"
-                                 "ucenter_poly"
-                                 "NO_SIMPLIFY" "VALUE")
+arcpy.RasterToPolygon_conversion("ucenter_pgroups",\
+                                 "ucenter_poly",\
+                                 "NO_SIMPLIFY", "VALUE")
 ## Fill gaps (all enclosed pixel areas are incorporated into polygons)
-arcpy.Union_analysis(["ucenter_poly"],
-                     "ucenter_polyfill", "ALL",
+arcpy.Union_analysis(["ucenter_poly"],\
+                     "ucenter_polyfill", "ALL",\
                      0.01, "NO_GAPS")
-arcpy.Dissolve_management("ucenter_polyfill", "ucenter_polyfd", "", "", "SINGLE_PART")
+arcpy.Dissolve_management("ucenter_polyfill", "ucenter_polyfd", "", "", \
+			  "SINGLE_PART")
 
 ## Convert population layer to integer type, build attribute table
 arcpy.Int_3d("region_pop.tif", "region_pop_int.tif")
 
 ## Sum population over polygons
-pop_sum = ZonalStatistics("ucenter_polyfd", "FID",
+pop_sum_uce = ZonalStatistics("ucenter_polyfd", "FID",\
                           "region_pop_int.tif", "SUM", "NODATA")
 
 ## Reclassify summed population raster:
 ## - 0 = less than 50,000
-## - 10 = 50,000 or more
-rules = RemapRange([[0,49999,0],[50000, 333683, 10]])
-ucenter_class = Reclassify ("pop_sum", "Value", rules)
+## - 4 = 50,000 or more
+rules = RemapRange([[0,49999,0],[50000, 10000000, 4]])
+ucenter_class = Reclassify ("pop_sum_uce", "Value", rules)
+
 
 ## Set urban center pixels to null in pixel_class layer
-
+con_uce = Con(IsNull("ucenter_class"),0, "ucenter_class")
+forucl_mod = SetNull ("con_uce", "pixel_classes", "VALUE = 4")
 
 #################################################################
+
+## DEFINE URBAN CLUSTERS (tested) ***
+
+## ISOLATE URBAN CLUSTER PIXELS 
+## Categorizes all urban cluster pixels, other classes are NODATA ***EDIT FOR "OR" CASE
+ucluster_rules = RemapRange([[0, 2, 'NODATA'], [2, 6, 1]])
+ucluster_pixels = Reclassify("forucl_mod", "Value", ucluster_rules)
+
+## CREATE URBAN CLUSTER REGIONS
+## Groups urban cluster pixels into regions
+ucluster_pgroups = RegionGroup("ucluster_pixels", "EIGHT", "WITHIN")
+
+## DETERMINE REGIONS WITH > 5,000 POPULATION
+## Convert regions to polygons in order to sum
+arcpy.RasterToPolygon_conversion("ucluster_pgroups",\
+                                 "ucluster_poly",\
+                                 "NO_SIMPLIFY", "VALUE")
+## Sum population over polygons
+pop_sum_ucl = ZonalStatistics("ucluster_poly", "OBJECTID",\
+                          "region_pop_int.tif", "SUM", "NODATA")
+
+## Reclassify summed population raster:
+## - 0 = less than 5,000
+## - 3 = 5,000 or more
+rules = RemapRange([[0,4999,0],[5000, 10000000, 3]])
+ucluster_class = Reclassify ("pop_sum_ucl", "Value", rules)
+
+## Set urban cluster pixels to null in pixel_class layer
+con_ucl = Con(IsNull("ucluster_class"),0, "ucluster_class")
+forrs_mod = SetNull ("con_ucl", "forucl_mod", "VALUE = 3")
+
+#################################################################
+
+## DEFINE RURAL / SUBURBAN
+
+## ISOLATE RURAL/SUBURBAN PIXELS 
+## Categorizes all rural and suburban pixels, other classes are NODATA ***EDIT FOR "OR" CASE
+rs_rules = RemapRange([[0, 0, 'NODATA'], [1, 6, 1]])
+rs_pixels = Reclassify("forrs_mod", "Value", rs_rules)
+
+## RESAMPLE ACCESSIBILITY LAYER
+## Changes accessibility layer to 250m cells
+arcpy.Resample_management ("region_access.tif", "access_250", 250, \
+			   "NEAREST")
+
+## CLASSIFY SUBURBAN AND RURAL
+## Changes value of pixels within accessibility threshold
+## - 1 = RURAL
+## - 2 = SUBURBAN
+sub_class = (Raster("access_250") < suburban_thresh ) & ( Raster("rs_pixels") == 1)
+subrur_class = (Raster("sub_class") + 1)
+#################################################################
+
+## MOSAIC RESULTS
+# urban center layer is con_uce (nodata is 0) or ucenter_class (has nodata)
+# urban cluster layer is con_ucl (nodata is 0) or ucluster_class (has nodata)
+# suburban/rural layer is subrur_class (nodata is 0) OR...
+
+##################################################################
 
 ## REMOVE TEMPORARY FILES
 
@@ -137,5 +205,18 @@ arcpy.Delete_management("ucenter_poly")
 arcpy.Delete_management("ucenter_polyfill")
 arcpy.Delete_management("region_pop_int")                       
 arcpy.Delete_management("ucenter_polyfd")
-arcpy.Delete_management("pop_sum")
+arcpy.Delete_management("pop_sum_uce")
 arcpy.Delete_management("ucenter_class") 
+arcpy.Delete_management("con_uce") 
+arcpy.Delete_management("forucl_mod") 
+arcpy.Delete_management("ucluster_pixels") 
+arcpy.Delete_management("ucluster_pregroups") 
+arcpy.Delete_management("ucluster_poly") 
+arcpy.Delete_management("pop_sum_ucl") 
+arcpy.Delete_management("ucluster_class") 
+arcpy.Delete_management("con_ucl") 
+arcpy.Delete_management("forrs_mod") 
+arcpy.Delete_management("rs_pixels") 
+arcpy.Delete_management("access_250")
+arcpy.Delete_management("sub_class") 
+arcpy.Delete_management("subrur_class") 
