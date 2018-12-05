@@ -53,6 +53,10 @@ The following line in the program should be editted to reflect the desired acces
  
  ``suburban_thresh = 40``
 - - - -  
+# The Output Human Settlement Layer
+In the output layer, classes are enumerated from 0-4, where 4 is urban center, 3 is urban cluster, 2 is suburban, 1 is rural and 0 is uninhabited. Below is a guide 
+
+- - - - 
 # Background Information
 The program uses the same criteria as the Global Human Settlement Layer developed by the European Commission's Joint Research Council. The GHSL classifies pixels into 4 categories: Urban center, Urban cluster, rural and uninhabited. This program adds a suburban class, created by sub-classifying "rural" cells based on their accessibility to urban centers.
 
