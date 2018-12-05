@@ -55,11 +55,6 @@ arcpy.ProjectRaster_management(in_built, "region_built.tif",\
 
 #################################################################
 
-## CLIP DATASETS TO REGION EXTENT
-
-
-#################################################################
-
 ## RECLASSIFY PIXELS 
 
 ## POPULATION CLASSIFICATION
