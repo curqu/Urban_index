@@ -175,23 +175,27 @@ arcpy.Resample_management ("region_access.tif", "access_250", 250, \
 ## - 1 = RURAL
 ## - 2 = SUBURBAN
 sub_class = (Raster("access_250") < suburban_thresh ) & ( Raster("rs_pixels") == 1)
-addrur_class = (Raster("sub_class") + 1)
+subrur_class = (Raster("sub_class") + 1)
 
 ## CLASSIFY UNINHABITED
 ## Sets all Remaining Pixels to 0
-unin_rules = RemapRange([[0,0,0], [1,3, 'NODATA']])
-unin_class = Reclassify("forrs_mod", "Value", unin_rules)
+con_sr = Con(IsNull("subrur_class"),0, "subrur_class")
 			 
 #################################################################
 
-## MOSAIC RESULTS ##UNTESTED
-# urban center layer is con_uce (nodata is 0) or ucenter_class (has nodata)
-# urban cluster layer is con_ucl (nodata is 0) or ucluster_class (has nodata)
-# suburban/rural layer is subrur_class (nodata is 0) OR...
-arcpy.MosaicToNewRaster_management("subrur_class;ucluster_class;ucenter_class;u\
-				   nin_class","c:/temp/370_test1",\
-				   "human_settlement_index.tif", "","","","1",\
-				   "MAXIMUM","MATCH")		 	
+## COMBINE CLASSES INTO A SINGLE RASTER FILE
+
+## ADD VALUES IN EACH con CLASS LAYER
+## sum all values to produce a raster where:
+##  - 0 is uninhabited
+##  - 1 is rural
+##  - 2 is suburban
+##  - 3 is urban cluster
+##  - 4 is urban center
+settlement_index = (Raster("con_sr") + Raster("con_ucl") + Raster("con_uce"))
+
+## SAVE OUTPUT 
+settlement_index.save('settlement_index.tif')
 
 ##################################################################
 
@@ -224,4 +228,4 @@ arcpy.Delete_management("rs_pixels")
 arcpy.Delete_management("access_250")
 arcpy.Delete_management("sub_class") 
 arcpy.Delete_management("subrur_class") 
-arcpy.Delete_management("uninclass")
+arcpy.Delete_management("con_sr")
