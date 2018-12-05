@@ -60,31 +60,31 @@ arcpy.ProjectRaster_management(in_built, "region_built.tif",\
 
 #################################################################
 
-## RECLASSIFY PIXELS (tested) ***
+## RECLASSIFY PIXELS 
 
 ## POPULATION CLASSIFICATION
 ## Categorizes population parameter:
 ##  - 0 is uninhabited
 ##  - 1 is between 1 - 75 people / pixel
-##  - 3 is between 75 - 374 people / pixel
-##  - 5 is greater than 375 people / pixel
-pop_rules = RemapRange([[0, 0, 0], [0, 74, 1], [74, 374, 3],
-                        [374, 3566, 5]]) # needs to be able to work for larger pop.
+##  - 2 is between 75 - 374 people / pixel
+##  - 3 is greater than 375 people / pixel
+pop_rules = RemapRange([[0, 0, 0], [0, 74, 1], [74, 374, 2],
+                        [374, 3566, 3]])
 pop_classes = Reclassify("region_pop.tif", "Value", pop_rules)
 
 ## BUILT-UP CLASSIFICATION
 ## Categorizes % built up:
-##  - 0 is 0-50%
-##  - 1 is 50-100%
-bu_rules = RemapRange([[0, 0.49, 0], [0.49, 1, 1]])
+##  - 0  is 0-50%
+##  - 10 is 50-100%
+bu_rules = RemapRange([[0, 0.49, 0], [0.49, 1, 10]])
 bu_classes = Reclassify("region_built.tif", "Value", bu_rules)
 
 ## COMBINE OUTPUTS
 ## adds values from each "classes" layer:
 ##  - 0 is 0 pop and 0-49% built up
-##  - 1-2 is RURAL or SUBURBAN
-##  - 3-5 is potential URBAN CLUSTER
-##  - 6 is potential URBAN CENTRE
+##  - 1 is RURAL or SUBURBAN
+##  - >= 2 is potential URBAN CLUSTER
+##  - >= 3 is potential URBAN CENTRE
 pixel_classes = Raster("pop_classes") + Raster("bu_classes")
 
 #################################################################
@@ -93,8 +93,8 @@ pixel_classes = Raster("pop_classes") + Raster("bu_classes")
 
 ## ISOLATE URBAN CENTERS PIXELS *** EDIT TO "OR" CASE
 ## Categorizes all urban center pixels, other classes are NODATA
-ucenter_rules = RemapRange([[0, 5, 'NODATA'], [5, 6, 1]])
-ucenter_pixels = Reclassify("pixel_classes", "Value", ucenter_rules)
+ucenter_rules = RemapRange([[0, 2, 'NODATA'], [2, 13, 1]])
+ucenter_pixels = Reclassify("pixel_classes", "Value", ucenter_rules) #check if rules correct!
 
 ## CREATE URBAN CENTER REGIONS
 ## Groups urban center pixels into regions
@@ -124,6 +124,7 @@ pop_sum_uce = ZonalStatistics("ucenter_polyfd", "FID",\
 ## - 4 = 50,000 or more
 rules = RemapRange([[0,49999,0],[50000, 10000000, 4]])
 ucenter_class = Reclassify ("pop_sum_uce", "Value", rules)
+
 
 ## Set urban center pixels to null in pixel_class layer
 con_uce = Con(IsNull("ucenter_class"),0, "ucenter_class")
