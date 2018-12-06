@@ -69,7 +69,7 @@ pixel_classes.save("pixel_classes")
 
 ## DEFINE URBAN CENTERS
 
-## ISOLATE URBAN CENTERS PIXELS *** EDIT TO "OR" CASE
+## ISOLATE URBAN CENTERS PIXELS
 ## Categorizes all urban center pixels, other classes are NODATA
 ucenter_rules = RemapRange([[0, 2, 'NODATA'], [2, 13, 1]])
 ucenter_pixels = Reclassify("pixel_classes", "Value", ucenter_rules)
