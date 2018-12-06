@@ -34,27 +34,40 @@ in_pop = "GHS_POP_2015"``
 ``## Input Built-Up Layer
 in_built = "GHS_BUILT2014"``
 
-The script can be run in the Python interactive window by running ``execfile(c:/mydirectory/urban_index-master/script.py``. Be sure to specify the full path to where the script is located in your system.
+The script can be run in the Python interactive window by running ``execfile(c:/mydirectory/urban_index-master/urbanization_index.py``. Be sure to specify the full path to where the script is located in your system.
 
 ### Accessibility Threshold Parameter *** clarify why 2 SD is chosen, give better justification for default 
-This variable defines the threshold used to classify suburban cells (vs. rural). The default value is 40, which reflects the author's idea of a "reasonable" time distance for daily travel to the nearest urban center. This variable should be defined based on local context and the application. 
+This variable defines the threshold used to classify suburban cells (vs. rural). It represents the time (in minutes) to travel to the nearest urban center from a given cell. The default value is set at 40 minutes, which is arbitrary and may not be meaningful for any particular application, but can be used if relevant data is not available. 
+To obtain an output analogous to the original GHSL output at 250m, the accessibility threshold value can be set to 0, otherwise it should be defined based on local context and the application. 
 
-For applications that wish to learn about exisitng patterns / relationships between urban / suburban / rural space and populations: the threshold should reflect the time distance that people are willing to commute - such as + 2 standard deviations from the average daily commute time. This criteria reflects the connectedness of pixels in question to an urban center, using employment as a proxy for all social connections. When this type of data is not available, analysts use a constant * the mean commute time to estimate 2 standard deviations.
+For applications that wish to learn about exisitng patterns and relationships between urban, suburban, and rural space or populations, the threshold should reflect the time distance that people are willing to commute on a daily basis. One might find it reasonable to use data about commute times to work as a proxy for other social connections, as this data is typically available for metropolitan regions. For example, the user might choose to set it at +2 standard deviations from the mean daily commute time, in order to include the spread of commute times while excluding extreme outliers. When this type of data is not available, analysts could substitute a constant times the mean commute time to estimate a meaningful threshold value.
 
 For applications assessing future development goals/locations: a threshold based on the mean commute time, desired commute time or relevant literature is more appropriate. 
 
-The default value can be used if relevant data is not available, but may reduce the quality of the outputs when it is inappropriate for local context.
-
-To obtain an output analogous to the original GHSL output at 250m, the accessibility threshold value can be set to 0.
 The following line in the program should be editted to reflect the desired accessibility threshold value:
  
  ``suburban_thresh = 40``
 - - - -  
 # The Output Human Settlement Layer
-In the output layer, classes are enumerated from 0-4, where 4 is urban center, 3 is urban cluster, 2 is suburban, 1 is rural and 0 is uninhabited. Below is a guide 
+In the output layer, classes are enumerated from 0 to 4, where 4 is urban center, 3 is urban cluster, 2 is suburban, 1 is rural and 0 is uninhabited. The output is based on the classes in the GHSL: urban center, urban cluster, rural and uninhabited. I have added the suburban class to account for areas with low population densities but that have significant connections to urban areas. The GHSL classes are based on EU statistical classifications, but as a number of datasets and modules are based on the GHSL, these classes are meaningful outside of that context as well. Here I will briefly describe how to interpret the output layer, class by class.
+
+## Uninhabited (0)
+These are cells which have no population. There could still be a human presence as infrastructure and industry are not accounted for in this class. It is worth noting that as the GHSL has a global scope, it does not exclude waterbodies which get classified as "uninhabited".
+
+## Rural (1)
+Rural cells are those with a very low population density, and far enough removed from urban centers that the population does not have easy access to features of cities (such as specialty commercial areas, many types of employment, and urban spaces more generally). 
+
+## Suburban (2)
+These cells also have a low population density, but are distinct from rural areas in that their inhabitants can access urban centers without difficulty. These regions will often be part of the urban center's municipal or metropolitan boundaries, although they often will not have features of urban space. This class is added because running the GHSL with its original parameters at a 250m resolution often results in rural-classed areas which are intricately connected to cities. This result may obscure studies that seek to establish differences between urban and rural populations.
+
+## Urban Cluster (3)
+Urban clusters are areas that have a medium population density. They are closer to urban space than rural, althoigh may lack features typically associated with larger cities. Smaller towns that have a distinct core will often be urban clusters, as well as cores of what we might consider suburbs. It is important to note the distinction between how we think about "suburbs" in everyday language and the way this program treats the distinction between suburban and urban, as here we consider population density and the presence of man-made objects, and not municipal borders. The urban cluster class is useful for distinguishing "suburban" regions that are more urban than rural in their built form and population density.
+
+## Urban Center (4)
+These are regions with high population density or a dominance of man-made structures. They represent the central parts of medium to large cities. 
 
 Here is an example of an output for the Pacific Northwest of North America. This image includes the Vancouver, Vicotia and Seattle metropolitan areas.
-Here, darker pink areas are urban centers, light pink are urban clusters, orange is suburban (with the accessibility threshold at the default value) and green are rural areas. All the white areas are uninhabited. It's worth noting that as the GHSL has a global scope, it does not exclude waterbodies which get classified as "uninhabited".
+Here, darker pink areas are urban centers, light pink are urban clusters, orange is suburban (with the accessibility threshold at the default value) and green are rural areas. All the white areas are uninhabited. 
 
 ![alt text](https://github.com/curqu/Urban_index/blob/master/Capture.PNG)
 
