@@ -13,45 +13,26 @@ from arcpy.sa import *
 
 ## SET WORKSPACE:
 
-arcpy.env.workspace = "c:/temp/test2"
+arcpy.env.workspace = "c:/mydirectory/myworkingenvironment"
 
 #################################################################
 
 ## INPUT LAYERS: (see README for appropriate inputs)
 
 ## Input Accessibility Layer
-in_access = "region_access.tif"
+in_access = "clipped_projected_accessibility.tif"
 
 ## Input Population Layer
-in_pop = "region_pop.tif"
+in_pop = "clipped_projected_population.tif"
 
 ## Input Built-Up Layer
-in_built = "region_built.tif"
-
-## Input Regional Extent Projection  Layer
-#in_region = "EBC_REG_DT_polygon"
+in_built = "clipped_projected_builtup.tif"
 
 #################################################################
 
 ## ACCESSIBILITY THRESHOLD (see README for appropriate Values)
 
 suburban_thresh = 40
-
-#################################################################
-
-## REPROJECT DATA LAYERS (tested)
-
-## Reproject Accessibility Layer
-#arcpy.ProjectRaster_management(in_access, "region_access.tif",\
-                               #in_region, "BILINEAR")
-
-## Reproject Population Layer
-#arcpy.ProjectRaster_management (in_pop, "region_pop.tif",\
-			       #in_region, "BILINEAR")
-
-## Reproject Built-Up Layer
-#arcpy.ProjectRaster_management(in_built, "region_built.tif",\
-                               #in_region, "BILINEAR")
 
 #################################################################
 
@@ -219,9 +200,6 @@ settlement_index.save('settlement_index.tif')
 
 ## REMOVE TEMPORARY FILES
 
-#arcpy.Delete_management("region_access")
-#arcpy.Delete_management("region_pop")
-#arcpy.Delete_management("region_built")
 arcpy.Delete_management("pop_classes")
 arcpy.Delete_management("bu_classes")
 arcpy.Delete_management("pixel_classes")
