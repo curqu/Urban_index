@@ -56,6 +56,11 @@ The following line in the program should be editted to reflect the desired acces
 # The Output Human Settlement Layer
 In the output layer, classes are enumerated from 0-4, where 4 is urban center, 3 is urban cluster, 2 is suburban, 1 is rural and 0 is uninhabited. Below is a guide 
 
+Here is an example of an output for the Pacific Northwest of North America. This image includes the Vancouver, Vicotia and Seattle metropolitan areas.
+Here, darker pink areas are urban centers, light pink are urban clusters, orange is suburban (with the accessibility threshold at the default value) and green are rural areas. All the white areas are uninhabited. It's worth noting that as the GHSL has a global scope, it does not exclude waterbodies which get classified as "uninhabited".
+
+![alt text](https://github.com/curqu/Urban_index/blob/master/Capture.PNG)
+
 - - - - 
 # Background Information
 The program uses the same criteria as the Global Human Settlement Layer developed by the European Commission's Joint Research Council. The GHSL classifies pixels into 4 categories: Urban center, Urban cluster, rural and uninhabited. This program adds a suburban class, created by sub-classifying "rural" cells based on their accessibility to urban centers.
