@@ -94,9 +94,11 @@ The above criteria are derived from the GHSL, a 1km resolution raster that class
 
 ## About the Global Human Settlement Layer 
 The EU Joint Research Council's GHSL uses a global population dataset with satellite derived building footprint data to classify human settlement at a global scale. The original GHSL with 1km resolution is available for download at: https://ghsl.jrc.ec.europa.eu/data.php. The original GHSL categories are based on statistical classes of human settlement used by the EU. It was originally intended to be used in disaster response and mitigation, however has proved useful for many more applications and underlies a variety of other global data products.
-More information about the GHSL, it's purpose and conext is available at:
+More information about the GHSL, it's purpose and conext is available at: 
 https://ghsl.jrc.ec.europa.eu/degurba.php
+
 https://ghsl.jrc.ec.europa.eu/documents/atlas2016_section2_4.pdf?t=1476110582
+
 https://ghsl.jrc.ec.europa.eu/documents/atlas2016_section2_3.pdf?t=1476110581
 
 ## About the Malaria Atlas Project Accessibility Dataset
