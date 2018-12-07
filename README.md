@@ -1,4 +1,4 @@
-# Urban & Suburban Development Index
+# Urban Development Index
 A python script for ArcMap 10.6 classifying urban, suburban and rural areas, based on the Global Human Settlement Layer (GHSL).
 
 - - - -
