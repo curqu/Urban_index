@@ -24,7 +24,7 @@ A python script for ArcMap 10.6 classifying urban, suburban and rural areas, bas
   ``arcpy.env.workspace = "c:/pathto/mydirectory/myworkspacefolder"``
   
   ### Input Layers
-  Input layers from the datasets listed in the dependencies section include a population layer and a "built up" layer from the GHSL dataset; and an accessibility layer from MAP. The user should ensure that they data they select is at a 250m resolution, and from the correct year. All three input layers should be clipped to the study area and reprojected as appropriate before running the script. The user should change the following layer names (in quotations) to match their clipped inputs:
+  Input layers from the datasets listed in the dependencies section include a population layer and a "built up" layer from the GHSL dataset; and an accessibility layer from MAP. The user should ensure that they data they select is at a 250m resolution, and from the correct year. All three input layers should be clipped to the study area and reprojected (if appropriate) before running the script. The user should change the following layer names (in quotations) to match their clipped inputs:
 
  `` ## Input Accessibility Layer
 in_access = "accessibility.tif"``
